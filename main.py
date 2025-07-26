@@ -5,6 +5,7 @@ import time
 import threading
 import os
 from datetime import datetime
+from urllib.parse import quote
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY',
@@ -30,13 +31,12 @@ def get_worksheet_as_dataframe(sheet_url, sheet_name=None):
         if '/edit' in sheet_url:
             sheet_id = sheet_url.split('/d/')[1].split('/')[0]
         else:
-            sheet_id = sheet_url.split(
-                '/')[-2] if '/' in sheet_url else sheet_url
+            sheet_id = sheet_url.split('/')[-2] if '/' in sheet_url else sheet_url
 
-        # If specific sheet name is provided, add gid parameter
+        # If specific sheet name is provided, URL-encode the name
         if sheet_name:
-            # For "Count" sheet, we need to find its gid or use sheet name in URL
-            csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
+            encoded_sheet_name = quote(sheet_name)  # Encode special characters
+            csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={encoded_sheet_name}"
         else:
             csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
 
@@ -46,6 +46,7 @@ def get_worksheet_as_dataframe(sheet_url, sheet_name=None):
         # Clean the data
         df = df.dropna(how='all')  # Remove completely empty rows
         return df
+
     except Exception as e:
         print(f"Error fetching data: {e}")
         return pd.DataFrame()
