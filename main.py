@@ -159,7 +159,7 @@ def check_for_updates():
         except Exception as e:
             print(f"Error in check_for_updates: {e}")
 
-        time.sleep(5)  # Check every 10 seconds
+        time.sleep(1)  # Check every 10 seconds
 
 
 @app.route('/')
